@@ -1,0 +1,33 @@
+# ADD FLY MODE
+# replace walking mode to falling in 1016C9D2
+load HP.exe
+start
+print enter_any_level_and_input_zero_here 0
+input _waiter
+# allocate memory for code injection
+allocate 1024 _newMem
+# add jmp instruction header
+write 0x1016C9D2 char E9
+# calculate jmp instruction body with jumping to new allocated memory
+set _redirect jump 0x1016C9D2 _newMem
+# write jmp instruction body
+write 0x1016C9D3 dword _redirect
+# write nop instruction for align
+write 0x1016C9D7 char 90
+# write additional instructions
+# replace walking (1) mode to falling (2)
+# replace the getter code: we want the game to think that we are always in walking mode
+# (from the logic of the game it follows that only in this mode you can jump)
+# mov cl,[rax]  ; read real mode
+# cmp cl,02     ; if player in falling mode
+# jne skip
+# mov cl,01     ; replace it by walking mode
+# mod [rdx],cl  ; replacement will be made only for a certain code, so it allows to jump again
+write _newMem bytes 8A0880F9020F8502000000B101880A8BE5E9
+set _newMem add _newMem 17
+# calculate return path from injected code
+set _return jump _newMem 0x1016C9D7
+# calculate return instruction body position
+set _newMemNext add _newMem 1
+# wite return instruction body
+write _newMemNext dword _return
