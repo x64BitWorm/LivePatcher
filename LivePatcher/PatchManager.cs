@@ -32,14 +32,14 @@ namespace LivePatcher
         public void WriteMemory(long address, byte[] data)
         {
             int written = 0;
-            WriteProcessMemory(_process.hProcess, (int)address, data, data.Length, ref written);
+            WriteProcessMemory(_process.hProcess, address, data, data.Length, ref written);
         }
 
         public byte[] ReadMemory(long address, int size)
         {
             byte[] result = new byte[size];
             int read = 0;
-            ReadProcessMemory(_process.hProcess, (int)address, result, size, ref read);
+            ReadProcessMemory(_process.hProcess, address, result, size, ref read);
             return result;
         }
 
@@ -47,6 +47,13 @@ namespace LivePatcher
         {
             return VirtualAllocEx(_process.hProcess, 0, (uint)size, AllocationType.MEM_RESERVE | AllocationType.MEM_COMMIT,
                 PageProtection.PAGE_EXECUTE_READWRITE);
+        }
+
+        public ulong StartThread(long address)
+        {
+            ulong threadId;
+            CreateRemoteThread(_process.hProcess, 0, 0, address, 0, 0, out threadId);
+            return threadId;
         }
 
         public long DllOffset(string dll)

@@ -76,6 +76,12 @@ namespace LivePatcher.Commands
             _memory.Set(variable, _patcher.Allocate(int.Parse(size)));
         }
 
+        [Command("thread", "[label] create and start thread starting from (1) address")]
+        public void ThreadCommand(string variable)
+        {
+            _patcher.StartThread(_memory.Get(variable));
+        }
+
         [Command("dll", "[dllname,var] gets dll address into memory and writes it into (2)")]
         public void DllCommand(string dllname, string variable)
         {
